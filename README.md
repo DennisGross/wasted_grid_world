@@ -1,3 +1,4 @@
-# wasted_grid_world
+# Wasted Gridworld
 Navigate your wasted agent home.
+
 ![](gridworld.gif)
