@@ -20,7 +20,15 @@ E.g. 4x4 (variable).
 - Modify movement noise
 - Modify rewards
 
+# Requirements
+- PyGame
+- OpenAI Gym
 
+# Setup
+Go into the root folder of the project and run:
+```
+pip3 install -e .
+```
 # Image Sources
 - [Smashicons](https://www.flaticon.com/authors/smashicons) for the drunk guy image ([flaticon.com](https://www.flaticon.com/))
 - [Vektor Market](https://www.flaticon.com/free-icon/house_609803?term=house&page=2&position=26%22%20title=%22Vectors%20Market) for the home image ([flaticon](https://www.flaticon.com/))
