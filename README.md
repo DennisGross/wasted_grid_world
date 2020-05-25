@@ -12,6 +12,12 @@ Our totally wasted grid world agent calls us and asks if we can safely navigate 
 # State Space
 E.g. 4x4 (variable).
 
+# Customizable Environment
+- Modify grid size
+- Modify initial positions
+- Modify movement noise
+- Modify rewards
+
 
 # Image Sources
 - [Smashicons](https://www.flaticon.com/authors/smashicons) for the drunk guy image ([flaticon.com](https://www.flaticon.com/))
