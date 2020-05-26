@@ -6,7 +6,7 @@ This OpenAI Gym is inspired by my previous [blog post](https://dennisgross.org/r
 ![](gridworld.gif)
 
 # Action Space
-- 0 = Go NORTH
+- 0 = GO NORTH
 - 1 = GO EAST
 - 2 = GO SOUTH
 - 3 = GO WEST
