@@ -23,6 +23,7 @@ E.g. 4x4 (variable).
 # Requirements
 - PyGame
 - OpenAI Gym
+- OpenAI Baselines (only for testing)
 
 # Setup
 Go into the root folder of the project and run:
