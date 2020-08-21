@@ -2,9 +2,8 @@ import gym
 import random
 import pygame
 import inspect
-
-
-
+from gym import spaces
+import numpy as np
 class WastedGridWorld(gym.Env):
     metadata = {'render.modes': ['human']}
 
@@ -32,6 +31,10 @@ class WastedGridWorld(gym.Env):
         self.agent_init_position = agent_position.copy()
         self.cops_init_position = cops_position.copy()
         self.hombre_malo_init_position = bad_ombre_position.copy()
+        self.action_space = spaces.Discrete(4)
+        self.observation_space = spaces.Box(low=0, high=255,
+                                            shape=(1, self.grid_size[0], self.grid_size[1]), dtype=np.uint8)
+
 
     def applying_potential_noise(self, action):
         if random.random() <= self.noise:
@@ -86,10 +89,10 @@ class WastedGridWorld(gym.Env):
             return self.living_penalty, False
 
     def get_state(self):
-        grid_world = [[0]*self.grid_size[0]]*self.grid_size[1]
-        grid_world[self.agent_position[0]][self.agent_position[1]] = 1
-        grid_world[self.cops_position[0]][self.cops_position[1]] = 2
-        grid_world[self.hombre_malo_position[0]][self.hombre_malo_position[1]] = 3
+        grid_world = np.zeros((self.grid_size[0], self.grid_size[1]))
+        grid_world[self.agent_position[0]-1][self.agent_position[1]-1] = 1
+        grid_world[self.cops_position[0]-1][self.cops_position[1]-1] = 2
+        grid_world[self.hombre_malo_position[0]-1][self.hombre_malo_position[1]-1] = 3
         return grid_world
 
 
@@ -105,6 +108,7 @@ class WastedGridWorld(gym.Env):
         self.agent_position = self.agent_init_position.copy()
         self.cops_position = self.cops_init_position.copy()
         self.hombre_malo_position = self.hombre_malo_init_position.copy()
+        return self.get_state()
 
 
     def render(self, mode='human', close=False):
