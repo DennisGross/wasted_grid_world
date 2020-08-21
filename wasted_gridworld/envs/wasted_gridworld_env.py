@@ -7,16 +7,17 @@ import numpy as np
 class WastedGridWorld(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, noise=0.2,
-                 living_penalty=0.05,
+    def __init__(self, noise=0.05,
+                 living_penalty=-0.05,
                  grid_size=[4, 4],
                  agent_position=[3, 0],
                  cops_position=[3, 3],
-                 cops_reward=0.5,
+                 cops_reward=-0.5,
                  bad_ombre_position=[1, 1],
                  bad_ombre_reward=-1,
                  home_position=[0,3],
-                 home_reward=1):
+                 home_reward=1,
+                 max_steps=None):
         self.noise = noise
         self.living_penalty = living_penalty
         self.grid_size = grid_size
@@ -32,6 +33,11 @@ class WastedGridWorld(gym.Env):
         self.cops_init_position = cops_position.copy()
         self.hombre_malo_init_position = bad_ombre_position.copy()
         self.action_space = spaces.Discrete(4)
+        self.counter = 0
+        if max_steps is None:
+            self.MAX_STEPS = self.grid_size[0]*self.grid_size[1]
+        else:
+            self.MAX_STEPS = max_steps
         self.observation_space = spaces.Box(low=0, high=255,
                                             shape=(1, self.grid_size[0], self.grid_size[1]), dtype=np.uint8)
 
@@ -64,11 +70,11 @@ class WastedGridWorld(gym.Env):
                 self.agent_position[0] -= 1
         elif action == 1:
             # EAST
-            if self.agent_position[1] < self.grid_size[1]:
+            if self.agent_position[1] < self.grid_size[1]-1:
                 self.agent_position[1] += 1
         elif action == 2:
             # SOUTH
-            if self.agent_position[0] < self.grid_size[0]:
+            if self.agent_position[0] < self.grid_size[0]-1:
                 self.agent_position[0] += 1
         elif action == 3:
             # WEST
@@ -90,17 +96,22 @@ class WastedGridWorld(gym.Env):
 
     def get_state(self):
         grid_world = np.zeros((self.grid_size[0], self.grid_size[1]))
-        grid_world[self.agent_position[0]-1][self.agent_position[1]-1] = 1
-        grid_world[self.cops_position[0]-1][self.cops_position[1]-1] = 2
-        grid_world[self.hombre_malo_position[0]-1][self.hombre_malo_position[1]-1] = 3
+        grid_world[self.agent_position[0]][self.agent_position[1]] = 1
+        grid_world[self.cops_position[0]][self.cops_position[1]] = 2
+        grid_world[self.hombre_malo_position[0]][self.hombre_malo_position[1]] = 3
         return grid_world
+
 
 
     def step(self, action):
         action = self.applying_potential_noise(action)
         self.apply_action(action)
+        self.counter += 1
         reward, self.done = self.get_reward()
         state = self.get_state()
+        if self.counter >= self.MAX_STEPS:
+            self.done = True
+            reward = -1
         return state, reward, self.done, None
 
 
@@ -108,6 +119,8 @@ class WastedGridWorld(gym.Env):
         self.agent_position = self.agent_init_position.copy()
         self.cops_position = self.cops_init_position.copy()
         self.hombre_malo_position = self.hombre_malo_init_position.copy()
+        self.counter = 0
+        self.done = False
         return self.get_state()
 
 
@@ -146,7 +159,7 @@ class WastedGridWorld(gym.Env):
 
         pygame.display.update()
         # Wait
-        pygame.time.wait(1000)
+        pygame.time.wait(100)
         if self.done == True:
             pygame.quit()
 

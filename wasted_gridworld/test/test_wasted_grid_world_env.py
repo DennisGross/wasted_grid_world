@@ -2,6 +2,9 @@ from unittest import TestCase
 from wasted_gridworld.envs.wasted_gridworld_env import WastedGridWorld
 import unittest
 from baselines import deepq
+import numpy as np
+import tensorflow as tf
+
 class TestWastedGridWorld(TestCase):
     @unittest.skip("bla")
     def test_run1(self):
@@ -43,7 +46,23 @@ class TestWastedGridWorld(TestCase):
     def test_open_ai_baselines_deepq(self):
         env = WastedGridWorld(noise=0)
         env.reset()
-        agent = deepq.learn(env, network='mlp', lr=0.0001, total_timesteps=1000, exploration_fraction=0.1,
-                            exploration_final_eps=0.02)
+        model = deepq.learn(env, network='mlp', total_timesteps=10000)
+
+        done = False
+        state = env.reset()
+        episode_rew = 0
+        print('start')
+        while done is False:
+            #print(env.agent_position)
+            env.render()
+            state = state.reshape(-1, 4, 4)
+            actions, _, _, _ = model.step(state)
+            state, rew, done, _ = env.step(actions.numpy()[0])
+            episode_rew += rew
+        print(env.counter)
+        print(env.agent_position)
+        print(episode_rew)
+
+
         self.assertTrue(True)
 
