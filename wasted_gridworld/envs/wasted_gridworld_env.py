@@ -7,7 +7,7 @@ import numpy as np
 class WastedGridWorld(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, noise=0.05,
+    def __init__(self, noise=0.05, noise_type='slippery',
                  living_penalty=-0.05,
                  grid_size=[4, 4],
                  agent_position=[3, 0],
@@ -18,7 +18,24 @@ class WastedGridWorld(gym.Env):
                  home_position=[0,3],
                  home_reward=1,
                  max_steps=None):
+        """
+        Constructor
+        :param noise: probability for noisy movement
+        :param noise_type: 'slippery' for noise that moves the agent to another cell. Otherwise noise for staying in
+                            same cell
+        :param living_penalty: penalty for living
+        :param grid_size: the 2D size of the grid world
+        :param agent_position: The agent position in [y,x]
+        :param cops_position: The cop position in [y,x]
+        :param cops_reward: Reward/cost of crashing into cops
+        :param bad_ombre_position: The bad ombre position in [y,x]
+        :param bad_ombre_reward: Reward/cost of crashing into bad ombre
+        :param home_position:  The home position in [y,x]
+        :param home_reward: Reward/cost of arriving home
+        :param max_steps: maximal allowed steps
+        """
         self.noise = noise
+        self.noise_type = noise_type
         self.living_penalty = living_penalty
         self.grid_size = grid_size
         self.agent_position = agent_position
@@ -45,22 +62,26 @@ class WastedGridWorld(gym.Env):
     def applying_potential_noise(self, action):
         if random.random() <= self.noise:
             coin = random.randint(0, 1)
-            if action == 0 and coin == 0:
-                action = 3
-            elif action == 0 and coin == 1:
-                action = 1
-            elif action == 1 and coin == 0:
-                action = 0
-            elif action == 1 and coin == 1:
-                action = 2
-            elif action == 2 and coin == 0:
-                action = 1
-            elif action == 2 and coin == 1:
-                action = 3
-            elif action == 3 and coin == 0:
-                action = 2
-            elif action == 3 and coin == 1:
-                action = 0
+            if self.noise_type == 'slippery':
+                if action == 0 and coin == 0:
+                    action = 3
+                elif action == 0 and coin == 1:
+                    action = 1
+                elif action == 1 and coin == 0:
+                    action = 0
+                elif action == 1 and coin == 1:
+                    action = 2
+                elif action == 2 and coin == 0:
+                    action = 1
+                elif action == 2 and coin == 1:
+                    action = 3
+                elif action == 3 and coin == 0:
+                    action = 2
+                elif action == 3 and coin == 1:
+                    action = 0
+            else:
+                # Agent felt down and stays on the same cell
+                return -1
         return action
 
     def apply_action(self, action):
@@ -105,7 +126,8 @@ class WastedGridWorld(gym.Env):
 
     def step(self, action):
         action = self.applying_potential_noise(action)
-        self.apply_action(action)
+        if action != -1:    # Agent felt down and stays on the same cell
+            self.apply_action(action)
         self.counter += 1
         reward, self.done = self.get_reward()
         state = self.get_state()
